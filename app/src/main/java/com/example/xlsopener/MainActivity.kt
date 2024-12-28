@@ -1,10 +1,12 @@
 package com.example.xlsopener
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +30,6 @@ class MainActivity : AppCompatActivity() {
 
     private val url = "https://college.tu-bryansk.ru/?page_id=4043"
     private lateinit var spnNameGroup: Spinner
-    private lateinit var spnDate: Spinner
     private lateinit var recyclerViewClass: RecyclerView
     private var isFileDownloaded = false
 
@@ -41,10 +42,10 @@ class MainActivity : AppCompatActivity() {
         val arrayAdapterNameGroup = ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
         spnNameGroup.adapter = arrayAdapterNameGroup
 
-        val dates = listOf("27.12.24", "26.12.24")
-        spnDate = findViewById(R.id.datePicker)
-        val arrayAdapterDate = ArrayAdapter(this, android.R.layout.simple_list_item_1, dates)
-        spnDate.adapter = arrayAdapterDate
+//        val dates = listOf("27.12.24", "26.12.24")
+//        spnDate = findViewById(R.id.datePicker)
+//        val arrayAdapterDate = ArrayAdapter(this, android.R.layout.simple_list_item_1, dates)
+//        spnDate.adapter = arrayAdapterDate
 
         recyclerViewClass = findViewById(R.id.classRecyclerView)
         recyclerViewClass.layoutManager = LinearLayoutManager(this)
@@ -61,12 +62,12 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        spnDate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateSchedule()
-            }
+        val datePicker = findViewById<TextView>(R.id.datePickerTextView)
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        datePicker.setOnClickListener() {
+            DatePickerDialog(this,{_,year,month,day ->
+                datePicker.text = "${month+1}.$day"
+            },2024,12,31).show()
         }
     }
 
@@ -76,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val group = spnNameGroup.selectedItem as String
-        val day = spnDate.selectedItem as String
+        val day = "Вторник"
         val file = File(getExternalFilesDir(null), "file.xlsx")
 
         if (file.exists()) {
@@ -144,12 +145,6 @@ class MainActivity : AppCompatActivity() {
                                 CellType.NUMERIC -> rowData.add(cell.numericCellValue.toString())
                                 else -> rowData.add("")
                             }
-//                            val windows1251Bytes = rowData.last().toByteArray(Charset.forName(""))
-//
-//                            val utf8String = String(windows1251Bytes, Charset.forName("UTF-8"))
-//                            rowData[rowData.lastIndex]=utf8String
-
-                            println(rowData.last().encode(Charsets.ISO_8859_1))
                         }
                         data.add(rowData)
                     }
