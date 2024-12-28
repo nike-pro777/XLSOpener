@@ -25,6 +25,7 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.FileInputStream
 import java.nio.charset.Charset
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,7 +56,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         spnNameGroup.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 updateSchedule()
             }
 
@@ -65,9 +71,9 @@ class MainActivity : AppCompatActivity() {
         val datePicker = findViewById<TextView>(R.id.datePickerTextView)
 
         datePicker.setOnClickListener() {
-            DatePickerDialog(this,{_,year,month,day ->
-                datePicker.text = "${month+1}.$day"
-            },2024,12,31).show()
+            DatePickerDialog(this, { _, year, month, day ->
+                datePicker.text = "${month + 1}.$day"
+            }, 2024, 12, 31).show()
         }
     }
 
@@ -76,8 +82,9 @@ class MainActivity : AppCompatActivity() {
             println("File not downloaded yet")
             return
         }
+        val date = Date()
         val group = spnNameGroup.selectedItem as String
-        val day = "Вторник"
+        val day = "Понедельник"
         val file = File(getExternalFilesDir(null), "file.xlsx")
 
         if (file.exists()) {
@@ -134,7 +141,7 @@ class MainActivity : AppCompatActivity() {
         try {
             FileInputStream(file).use { fis ->
                 val workbook: Workbook = XSSFWorkbook(fis)
-                for(i in 0 until 1) {
+                for (i in 0 until 1) {
                     val sheet: Sheet = workbook.getSheetAt(i)
 
                     for (row in sheet) {
@@ -144,6 +151,10 @@ class MainActivity : AppCompatActivity() {
                                 CellType.STRING -> rowData.add(cell.stringCellValue)
                                 CellType.NUMERIC -> rowData.add(cell.numericCellValue.toString())
                                 else -> rowData.add("")
+                            }
+                            if (rowData.last() != "") {
+                                print("nameCharset" + Charset.defaultCharset().name())
+                                println(rowData.last().toString())
                             }
                         }
                         data.add(rowData)
@@ -161,14 +172,15 @@ class MainActivity : AppCompatActivity() {
         try {
             if (data.size > 11) {
                 val groupIndex = data[11].indexOf(group)
-                val dayIndex = data.indexOfFirst { it[1] == day }
-
-                if (groupIndex != -1 && dayIndex != -1) {
-                    for (i in dayIndex until data.size) {
-                        if (data[i][1] != day) break
-                        filteredData.add(data[i][groupIndex])
+                var dayIndex: Int = 0
+                for (i in 0..61) {
+                    if (data[i][0] == "Понедельник") {
+                        dayIndex = i
+                        break
                     }
                 }
+
+                filteredData.add(data[dayIndex][groupIndex])
             }
         } catch (e: Exception) {
             e.printStackTrace()
