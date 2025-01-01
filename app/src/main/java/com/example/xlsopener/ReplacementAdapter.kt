@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ReplacementAdapter(private val dataSet: Array<String>) :
+class ReplacementAdapter(private val dataSet: List<String>) :
     RecyclerView.Adapter<ReplacementAdapter.ViewHolder>() {
 
     /**

@@ -19,7 +19,7 @@
         android:id="@+id/weekDay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:text="Список занятий" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/classRecyclerView"
@@ -30,7 +30,7 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:text="Список замен" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/replacementRecyclerView"
