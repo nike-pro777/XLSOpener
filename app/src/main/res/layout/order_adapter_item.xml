@@ -2,12 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:background="@drawable/retro_item_background"
+    android:layout_marginBottom="8dp">
 
     <TextView
         android:id="@+id/classItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:text="TextView"
+        android:textSize="14sp"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        android:padding="8dp" />
 
 </LinearLayout>

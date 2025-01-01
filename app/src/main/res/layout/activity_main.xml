@@ -1,41 +1,88 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@drawable/retro_gradient">
 
-    <Spinner
-        android:id="@+id/groupName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/datePickerTextView"
-        android:text="Выберите дату"
-        android:layout_width="match_parent"
-        android:layout_height="100dp" />
-
-    <TextView
-        android:id="@+id/weekDay"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Список занятий" />
+        android:padding="16dp">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/classRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <!-- Spinner для выбора группы -->
+        <Spinner
+            android:id="@+id/groupName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/retro_button"
+            android:popupBackground="@drawable/retro_button"
+            android:layout_marginBottom="16dp"
+            android:textColor="#FFFFFF" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Список замен" />
+        <!-- TextView для выбора даты -->
+        <TextView
+            android:id="@+id/datePickerTextView"
+            android:text="Выберите дату"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:background="@drawable/retro_button"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="16dp"
+            android:textColor="#FFFFFF" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/replacementRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <!-- Разделитель -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#00FF00"
+            android:layout_marginBottom="16dp" />
 
+        <!-- Заголовок списка занятий -->
+        <TextView
+            android:id="@+id/weekDay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Список занятий"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            android:textColor="#00FF00" />
 
-</LinearLayout>
+        <!-- RecyclerView для списка занятий -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/classRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/retro_button" />
+
+        <!-- Разделитель -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#00FF00"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Заголовок списка замен -->
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Список замен"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            android:textColor="#00FF00"
+            android:fontFamily="@font/" />
+
+        <!-- RecyclerView для списка замен -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/replacementRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/retro_button" />
+
+    </LinearLayout>
+</ScrollView>
