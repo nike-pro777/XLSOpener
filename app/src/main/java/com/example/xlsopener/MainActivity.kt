@@ -1,5 +1,6 @@
 package com.example.xlsopener
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -16,9 +17,12 @@ import java.io.FileOutputStream
 import org.jsoup.Jsoup
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType
+import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.FileInputStream
 import java.util.Calendar
@@ -32,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private var isFileDownloaded = false
     private lateinit var datePicker: TextView
     private lateinit var dateDay: String
+    private lateinit var weekStateText: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +53,10 @@ class MainActivity : AppCompatActivity() {
         recyclerViewReplacement = findViewById(R.id.replacementRecyclerView)
         recyclerViewReplacement.layoutManager = LinearLayoutManager(this)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            parseWebsite(url)
+        if (!isFileDownloaded) {
+            CoroutineScope(Dispatchers.IO).launch {
+                parseWebsite(url)
+            }
         }
 
         datePicker = findViewById(R.id.datePickerTextView)
@@ -70,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                     Calendar.SATURDAY -> "Суббота"
                     else -> "Неизвестно"
                 }
-                datePicker.text = "$dayName"
+                datePicker.text = dayName
                 updateSchedule()
             }, 2025, 0, 1).show()
 
@@ -82,7 +89,8 @@ class MainActivity : AppCompatActivity() {
             println("File not downloaded yet")
             return
         }
-
+        val sheduleHeadingText = findViewById<TextView>(R.id.headingTextShedule)
+        sheduleHeadingText.text = "Список занятий ($weekStateText недели)"
         val group = spnNameGroup.selectedItem as String
         val day = datePicker.text.toString()
         val sheduleFile = File(getExternalFilesDir(null), "sheduleFile.xlsx")
@@ -109,7 +117,18 @@ class MainActivity : AppCompatActivity() {
         try {
             val document = Jsoup.connect(url).get()
             val links = document.select("a[href]")
-            var status = ""
+            val weekStates = document.select("strong")
+            for (weekState in weekStates) {
+                if (weekState.text().contains("чётной")) {
+                    weekStateText = weekState.text()
+                }
+            }
+
+            if(File(getExternalFilesDir(null),"sheduleFile.xlsx").exists() && File(getExternalFilesDir(null),"replacementFile.xlsx").exists()) {
+                isFileDownloaded = true
+            }
+
+            var status : String
             for (link in links) {
                 val linkText = link.text()
                 if (linkText.contains("Расписание учебных занятий")) {
@@ -137,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         try {
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                var fileName = ""
+                val fileName : String
                 if (statusFile == "shedule") {
                     fileName = "sheduleFile.xlsx"
                 } else fileName = "replacementFile.xlsx"
@@ -159,14 +178,17 @@ class MainActivity : AppCompatActivity() {
             FileInputStream(file).use { fis ->
                 val workbook: Workbook = XSSFWorkbook(fis)
                 val sheet: Sheet = workbook.getSheetAt(sheetNumber)
-                for (row in sheet) {
+                val mergedRegions = sheet.mergedRegions // Получаем список объединенных областей
+
+                for (rowIndex in 0..sheet.lastRowNum) {
+                    val row = sheet.getRow(rowIndex) ?: continue // Пропускаем пустые строки
                     val rowData = mutableListOf<String>()
-                    for (cell in row) {
-                        when (cell.cellType) {
-                            CellType.STRING -> rowData.add(cell.stringCellValue)
-                            CellType.NUMERIC -> rowData.add(cell.numericCellValue.toString())
-                            else -> rowData.add("")
-                        }
+
+                    for (cellIndex in 0 until row.lastCellNum) {
+                        val cell =
+                            row.getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK)
+                        val cellValue = getCellValue(cell, sheet, mergedRegions)
+                        rowData.add(cellValue)
                     }
                     data.add(rowData)
                 }
@@ -177,26 +199,85 @@ class MainActivity : AppCompatActivity() {
         return data
     }
 
+    // Функция для получения значения ячейки с учетом объединенных областей
+    fun getCellValue(cell: Cell, sheet: Sheet, mergedRegions: List<CellRangeAddress>): String {
+        // Проверяем, находится ли ячейка в объединенной области
+        for (mergedRegion in mergedRegions) {
+            if (mergedRegion.isInRange(cell.rowIndex, cell.columnIndex)) {
+                // Если ячейка объединена, берем значение из верхней левой ячейки области
+                val firstRow = sheet.getRow(mergedRegion.firstRow) ?: return ""
+                val firstCell = firstRow.getCell(mergedRegion.firstColumn) ?: return ""
+
+                // Проверяем, чтобы не было рекурсии (если ячейка ссылается сама на себя)
+                if (firstCell.rowIndex == cell.rowIndex && firstCell.columnIndex == cell.columnIndex) {
+                    return when (cell.cellType) {
+                        CellType.STRING -> cell.stringCellValue
+                        CellType.NUMERIC -> cell.numericCellValue.toString()
+                        else -> ""
+                    }
+                }
+                return getCellValue(firstCell, sheet, mergedRegions) // Рекурсивно получаем значение
+            }
+        }
+
+        // Если ячейка не объединена, возвращаем её значение
+        return when (cell.cellType) {
+            CellType.STRING -> cell.stringCellValue
+            CellType.NUMERIC -> cell.numericCellValue.toString()
+            else -> ""
+        }
+    }
+
     fun filterSchedule(data: List<List<String>>, group: String, day: String): List<String> {
         val filteredData = mutableListOf<String>()
+
         try {
             if (data.size > 11) {
                 val groupIndex = data[10].indexOf(group)
                 var dayIndex = 0
                 for (i in 0..61) {
-                    if (data[i].isNotEmpty() && data[i][0] == "$day") {
+                    if (data[i].isNotEmpty() && data[i][0] == day) {
                         dayIndex = i
                         break
                     }
                 }
+                fun filterClass(classNumber: Int, firstNumber: Int, secondNumber: Int) {
+                    if(classNumber == 4 && data[dayIndex + firstNumber][groupIndex].contains("4п")){
+                        filteredData.add("${data[dayIndex + firstNumber][groupIndex]} \n${data[dayIndex + secondNumber][groupIndex]}")
+                        return
+                    }
+                    if (data[dayIndex + firstNumber][groupIndex].isEmpty() && data[dayIndex + secondNumber][groupIndex].isEmpty()) {
+                        filteredData.add("${classNumber}пара: отсутствует")
+                    }
+                    if (data[dayIndex + firstNumber][groupIndex].isEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty() && weekStateText != "чётной") {
+                        filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][groupIndex])
+                    }
+                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isEmpty() && weekStateText == "чётной") {
+                        filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][groupIndex])
+                    }
+                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty()
+                        && data[dayIndex + secondNumber][groupIndex] == data[dayIndex + firstNumber][groupIndex]) {
+                        filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][groupIndex])
+                    }
+                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty()
+                        && data[dayIndex + secondNumber][groupIndex] != data[dayIndex + firstNumber][groupIndex] && weekStateText == "чётной") {
+                        filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][groupIndex])
+                    }
+                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty()
+                        && data[dayIndex + secondNumber][groupIndex] != data[dayIndex + firstNumber][groupIndex] && weekStateText != "чётной") {
+                        filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][groupIndex])
+                    }
+                }
 
-                filteredData.add("1 пара:" + data[dayIndex][groupIndex])
-                filteredData.add("2 пара:" + data[dayIndex + 2][groupIndex])
-                filteredData.add("3 пара:" + data[dayIndex + 4][groupIndex])
-                if (data[dayIndex + 6][groupIndex] != data[dayIndex + 7][groupIndex]) {
-                    filteredData.add(data[dayIndex + 6][groupIndex])
-                    filteredData.add(data[dayIndex + 7][groupIndex])
-                } else filteredData.add("4 пара:" + data[dayIndex + 6][groupIndex])
+                filterClass(1, 0, 1)
+                filterClass(2, 2, 3)
+                filterClass(3, 4, 5)
+                filterClass(4, 6, 7)
+
+//                if (data[dayIndex + 6][groupIndex] != data[dayIndex + 7][groupIndex]) {
+//                    filteredData.add(data[dayIndex + 6][groupIndex])
+//                    filteredData.add(data[dayIndex + 7][groupIndex])
+//                } else filteredData.add("4 пара:" + data[dayIndex + 6][groupIndex])
 
             }
         } catch (e: Exception) {

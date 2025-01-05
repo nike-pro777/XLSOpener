@@ -43,7 +43,7 @@
 
         <!-- Заголовок списка занятий -->
         <TextView
-            android:id="@+id/weekDay"
+            android:id="@+id/headingTextShedule"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Список занятий"
@@ -68,7 +68,7 @@
 
         <!-- Заголовок списка замен -->
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/headingTextReplacement"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Список замен"
