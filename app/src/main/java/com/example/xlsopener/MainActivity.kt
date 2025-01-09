@@ -1,8 +1,10 @@
 package com.example.xlsopener
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
@@ -42,10 +44,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val groups = listOf("24-МПО", "24-БУХ", "22-ПРО-1", "22-ПРО-2", "22-ПРО-3", "22-ПРО-4")
+        val groups = listOf("22-ПРО-1", "22-ПРО-2", "22-ПРО-3", "22-ПРО-4")
         spnNameGroup = findViewById(R.id.groupName)
         val arrayAdapterNameGroup = ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
         spnNameGroup.adapter = arrayAdapterNameGroup
+        spnNameGroup.setSelection(groups.indexOf("22-ПРО-3"))
 
         recyclerViewClass = findViewById(R.id.classRecyclerView)
         recyclerViewClass.layoutManager = LinearLayoutManager(this)
@@ -59,11 +62,33 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        datePicker = findViewById(R.id.datePickerTextView)
+        initDatePicker()
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_info -> {
+                val intent = Intent(this, InfoActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun initDatePicker() {
+        datePicker = findViewById(R.id.datePickerTextView)
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
         datePicker.setOnClickListener() {
-            DatePickerDialog(this, { _, year, month, day ->
-                val calendar = Calendar.getInstance()
+            DatePickerDialog( this, { _, year, month, day ->
                 dateDay = "$day.${month + 1}.${year}г."
                 calendar.set(year, month, day)
                 val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
@@ -79,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 datePicker.text = dayName
                 updateSchedule()
-            }, 2025, 0, 1).show()
+            }, currentYear, currentMonth, currentDay).show()
 
         }
     }
@@ -124,7 +149,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            if(File(getExternalFilesDir(null),"sheduleFile.xlsx").exists() && File(getExternalFilesDir(null),"replacementFile.xlsx").exists()) {
+            if(File(getExternalFilesDir(null),"sheduleFile.xlsx").exists()
+                && File(getExternalFilesDir(null),"replacementFile.xlsx").exists()) {
                 isFileDownloaded = true
             }
 
@@ -236,7 +262,7 @@ class MainActivity : AppCompatActivity() {
                 val groupIndex = data[10].indexOf(group)
                 var dayIndex = 0
                 for (i in 0..61) {
-                    if (data[i].isNotEmpty() && data[i][0] == day) {
+                    if (data[i].isNotEmpty() && data[i][0] == day && data[i][0] != "Воскресенье") {
                         dayIndex = i
                         break
                     }
@@ -273,11 +299,6 @@ class MainActivity : AppCompatActivity() {
                 filterClass(2, 2, 3)
                 filterClass(3, 4, 5)
                 filterClass(4, 6, 7)
-
-//                if (data[dayIndex + 6][groupIndex] != data[dayIndex + 7][groupIndex]) {
-//                    filteredData.add(data[dayIndex + 6][groupIndex])
-//                    filteredData.add(data[dayIndex + 7][groupIndex])
-//                } else filteredData.add("4 пара:" + data[dayIndex + 6][groupIndex])
 
             }
         } catch (e: Exception) {

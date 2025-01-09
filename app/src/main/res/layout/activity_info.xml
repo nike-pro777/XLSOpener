@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/retro_gradient">
+
+
+    <TextView
+        android:id="@+id/textViewInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:text="Приложение для отслеживания занятий и замен ПК БГТУ" />
+    <TextView
+        android:id="@+id/textViewInfoVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:layout_marginVertical="10dp"
+        android:textSize="16sp"
+        android:text="Версия 1.0" />
+    <TextView
+        android:id="@+id/textViewInfoContacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:text="Большая просьба, если заметили какой-то баг или приложение перестало корректно работать - пишите в ТГ (@NGTransit)" />
+</LinearLayout>

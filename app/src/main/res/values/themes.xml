@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.XLSOpener" parent="Theme.AppCompat.DayNight.NoActionBar" />
+    <style name="Theme.XLSOpener" parent="Theme.AppCompat.DayNight" >
+        <item name="actionBarStyle">@style/MyActionBarStyle</item>
+        <item name="actionBarPopupTheme">@style/MyPopupMenuStyle</item>
+    </style>
 </resources>

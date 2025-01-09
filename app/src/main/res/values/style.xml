@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyActionBarStyle" parent="Widget.AppCompat.ActionBar">
+        <!-- Фон ActionBar (градиент) -->
+        <item name="background">@drawable/retro_gradient</item>
+        <!-- Цвет текста в ActionBar -->
+        <item name="titleTextStyle">@style/MyActionBarTitleTextStyle</item>
+    </style>
+
+    <style name="MyActionBarTitleTextStyle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@color/white</item> <!-- Цвет текста -->
+        <item name="android:textSize">18sp</item> <!-- Размер текста -->
+    </style>
+
+    <style name="MyPopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
+        <!-- Фон меню -->
+        <item name="android:popupBackground">@color/black</item> <!-- Цвет фона -->
+        <!-- Цвет текста элементов меню -->
+        <item name="android:textColor">@color/white</item> <!-- Цвет текста -->
+        <!-- Закругленные углы (если нужно) -->
+        <item name="android:background">@drawable/retro_gradient</item>
+    </style>
+</resources>
