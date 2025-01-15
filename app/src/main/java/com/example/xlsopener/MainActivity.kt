@@ -44,11 +44,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val groups = listOf("22-ПРО-1", "22-ПРО-2", "22-ПРО-3", "22-ПРО-4")
+        val _class = listOf("301н","302н","303н")
         spnNameGroup = findViewById(R.id.groupName)
-        val arrayAdapterNameGroup = ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
+        val arrayAdapterNameGroup = ArrayAdapter(this, android.R.layout.simple_list_item_1, _class)
         spnNameGroup.adapter = arrayAdapterNameGroup
-        spnNameGroup.setSelection(groups.indexOf("22-ПРО-3"))
 
         recyclerViewClass = findViewById(R.id.classRecyclerView)
         recyclerViewClass.layoutManager = LinearLayoutManager(this)
@@ -254,44 +253,59 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun filterSchedule(data: List<List<String>>, group: String, day: String): List<String> {
+    fun filterSchedule(data: List<List<String>>, classRoom : String, day: String): List<String> {
         val filteredData = mutableListOf<String>()
 
         try {
             if (data.size > 11) {
-                val groupIndex = data[10].indexOf(group)
+                val groupIndex = data[10].indexOf(classRoom)
                 var dayIndex = 0
                 for (i in 0..61) {
-                    if (data[i].isNotEmpty() && data[i][0] == day && data[i][0] != "Воскресенье") {
+                    if (data[i].isNotEmpty() && data[i][0] == day) {
                         dayIndex = i
                         break
                     }
                 }
+
+//                for (i in dayIndex..dayIndex + 7 ) {
+//                    for(j in 0 .. data[0].size )
+//                        if (data[i][j].contains(classRoom)) {
+//                            filteredData.add(data[i][j])
+//                        }
+//                }
+
                 fun filterClass(classNumber: Int, firstNumber: Int, secondNumber: Int) {
-                    if(classNumber == 4 && data[dayIndex + firstNumber][groupIndex].contains("4п")){
-                        filteredData.add("${data[dayIndex + firstNumber][groupIndex]} \n${data[dayIndex + secondNumber][groupIndex]}")
-                        return
-                    }
-                    if (data[dayIndex + firstNumber][groupIndex].isEmpty() && data[dayIndex + secondNumber][groupIndex].isEmpty()) {
-                        filteredData.add("${classNumber}пара: отсутствует")
-                    }
-                    if (data[dayIndex + firstNumber][groupIndex].isEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty() && weekStateText != "чётной") {
-                        filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][groupIndex])
-                    }
-                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isEmpty() && weekStateText == "чётной") {
-                        filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][groupIndex])
-                    }
-                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty()
-                        && data[dayIndex + secondNumber][groupIndex] == data[dayIndex + firstNumber][groupIndex]) {
-                        filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][groupIndex])
-                    }
-                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty()
-                        && data[dayIndex + secondNumber][groupIndex] != data[dayIndex + firstNumber][groupIndex] && weekStateText == "чётной") {
-                        filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][groupIndex])
-                    }
-                    if (data[dayIndex + firstNumber][groupIndex].isNotEmpty() && data[dayIndex + secondNumber][groupIndex].isNotEmpty()
-                        && data[dayIndex + secondNumber][groupIndex] != data[dayIndex + firstNumber][groupIndex] && weekStateText != "чётной") {
-                        filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][groupIndex])
+                    for(j in 1 .. data[0].size) {
+//                    if(classNumber == 4 && data[dayIndex + firstNumber][groupIndex].contains("4п")){
+//                        filteredData.add("${data[dayIndex + firstNumber][groupIndex]} \n${data[dayIndex + secondNumber][groupIndex]}")
+//                        return
+//                    }
+                        if (data[dayIndex + firstNumber][j].isEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
+                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom)) ) {
+                            filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][j] + " " + data[10][j])
+                        }
+                        if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isEmpty()
+                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))) {
+                            filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][j] + " " + data[10][j])
+                        }
+                        if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
+                            && data[dayIndex + secondNumber][j] == data[dayIndex + firstNumber][j]
+                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))
+                        ) {
+                            filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][j] + " " + data[10][j])
+                        }
+                        if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
+                            && data[dayIndex + secondNumber][j] != data[dayIndex + firstNumber][j] && weekStateText == "чётной"
+                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))
+                        ) {
+                            filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][j] + " " + data[10][j])
+                        }
+                        if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
+                            && data[dayIndex + secondNumber][j] != data[dayIndex + firstNumber][j] && weekStateText != "чётной"
+                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))
+                        ) {
+                            filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][j] + " " + data[10][j])
+                        }
                     }
                 }
 
