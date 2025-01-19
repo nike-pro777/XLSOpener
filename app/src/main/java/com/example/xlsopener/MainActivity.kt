@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val _class = listOf("301н","302н","303н")
+        val _class = listOf("301н","302н","303н","306")
         spnNameGroup = findViewById(R.id.groupName)
         val arrayAdapterNameGroup = ArrayAdapter(this, android.R.layout.simple_list_item_1, _class)
         spnNameGroup.adapter = arrayAdapterNameGroup
@@ -266,20 +266,14 @@ class MainActivity : AppCompatActivity() {
                         break
                     }
                 }
-
-//                for (i in dayIndex..dayIndex + 7 ) {
-//                    for(j in 0 .. data[0].size )
-//                        if (data[i][j].contains(classRoom)) {
-//                            filteredData.add(data[i][j])
-//                        }
-//                }
-
+                
                 fun filterClass(classNumber: Int, firstNumber: Int, secondNumber: Int) {
                     for(j in 1 .. data[0].size) {
-//                    if(classNumber == 4 && data[dayIndex + firstNumber][groupIndex].contains("4п")){
-//                        filteredData.add("${data[dayIndex + firstNumber][groupIndex]} \n${data[dayIndex + secondNumber][groupIndex]}")
-//                        return
-//                    }
+                        if(classNumber == 4 && data[dayIndex + firstNumber][j].contains("4п")
+                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom)) ){
+                            filteredData.add("${data[dayIndex + firstNumber][j]+ " " + data[10][j]} \n ${data[dayIndex + secondNumber][j]+ " " + data[10][j]}")
+                            return
+                        }
                         if (data[dayIndex + firstNumber][j].isEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
                             && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom)) ) {
                             filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][j] + " " + data[10][j])
