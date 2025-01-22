@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val _class = listOf("301н","302н","303н","306")
+        val _class = listOf("301н", "308н", "310н", "204н", "309", "306", "210")
         spnNameGroup = findViewById(R.id.groupName)
         val arrayAdapterNameGroup = ArrayAdapter(this, android.R.layout.simple_list_item_1, _class)
         spnNameGroup.adapter = arrayAdapterNameGroup
@@ -76,6 +76,7 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -87,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         val currentMonth = calendar.get(Calendar.MONTH)
         val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
         datePicker.setOnClickListener() {
-            DatePickerDialog( this, { _, year, month, day ->
+            DatePickerDialog(this, { _, year, month, day ->
                 dateDay = "$day.${month + 1}.${year}г."
                 calendar.set(year, month, day)
                 val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
@@ -148,12 +149,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            if(File(getExternalFilesDir(null),"sheduleFile.xlsx").exists()
-                && File(getExternalFilesDir(null),"replacementFile.xlsx").exists()) {
+            if (File(getExternalFilesDir(null), "sheduleFile.xlsx").exists()
+                && File(getExternalFilesDir(null), "replacementFile.xlsx").exists()
+            ) {
                 isFileDownloaded = true
             }
 
-            var status : String
+            var status: String
             for (link in links) {
                 val linkText = link.text()
                 if (linkText.contains("Расписание учебных занятий")) {
@@ -181,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         try {
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                val fileName : String
+                val fileName: String
                 if (statusFile == "shedule") {
                     fileName = "sheduleFile.xlsx"
                 } else fileName = "replacementFile.xlsx"
@@ -253,7 +255,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun filterSchedule(data: List<List<String>>, classRoom : String, day: String): List<String> {
+    fun filterSchedule(data: List<List<String>>, classRoom: String, day: String): List<String> {
         val filteredData = mutableListOf<String>()
 
         try {
@@ -266,39 +268,44 @@ class MainActivity : AppCompatActivity() {
                         break
                     }
                 }
-                
+
                 fun filterClass(classNumber: Int, firstNumber: Int, secondNumber: Int) {
-                    for(j in 1 .. data[0].size) {
-                        if(classNumber == 4 && data[dayIndex + firstNumber][j].contains("4п")
-                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom)) ){
-                            filteredData.add("${data[dayIndex + firstNumber][j]+ " " + data[10][j]} \n ${data[dayIndex + secondNumber][j]+ " " + data[10][j]}")
+                    for (j in 1..data[0].size) {
+                        if (classNumber == 4 && data[dayIndex + firstNumber][j].contains("4п")
+                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(
+                                classRoom
+                            ))
+                        ) {
+                            filteredData.add("${data[dayIndex + firstNumber][j] + " " + data[10][j]} \n ${data[dayIndex + secondNumber][j] + " " + data[10][j]}")
                             return
                         }
                         if (data[dayIndex + firstNumber][j].isEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
-                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom)) ) {
+                            && data[dayIndex + secondNumber][j].contains(classRoom)
+                        ) {
                             filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][j] + " " + data[10][j])
                         }
                         if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isEmpty()
-                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))) {
+                            && data[dayIndex + firstNumber][j].contains(classRoom)
+                        ) {
                             filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][j] + " " + data[10][j])
                         }
                         if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
                             && data[dayIndex + secondNumber][j] == data[dayIndex + firstNumber][j]
-                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))
+                            && data[dayIndex + secondNumber][j].contains(classRoom)
                         ) {
                             filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][j] + " " + data[10][j])
                         }
                         if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
                             && data[dayIndex + secondNumber][j] != data[dayIndex + firstNumber][j] && weekStateText == "чётной"
-                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))
+                            && (data[dayIndex + secondNumber][j].contains(classRoom))
                         ) {
-                            filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][j] + " " + data[10][j])
+                            filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][j] + " " + data[10][j])
                         }
                         if (data[dayIndex + firstNumber][j].isNotEmpty() && data[dayIndex + secondNumber][j].isNotEmpty()
                             && data[dayIndex + secondNumber][j] != data[dayIndex + firstNumber][j] && weekStateText != "чётной"
-                            && (data[dayIndex + secondNumber][j].contains(classRoom) || data[dayIndex + firstNumber][j].contains(classRoom))
+                            && data[dayIndex + firstNumber][j].contains(classRoom)
                         ) {
-                            filteredData.add("${classNumber}пара:" + data[dayIndex + secondNumber][j] + " " + data[10][j])
+                            filteredData.add("${classNumber}пара:" + data[dayIndex + firstNumber][j] + " " + data[10][j])
                         }
                     }
                 }
