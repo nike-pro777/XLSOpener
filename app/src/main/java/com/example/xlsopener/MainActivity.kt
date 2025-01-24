@@ -44,6 +44,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        LogActivity.logs.add("File not found")
+        FirebaseLoggerImpl().logТочноОтправляетНаСервер("File not found")
+
         val groups = listOf("22-ПРО-1", "22-ПРО-2", "22-ПРО-3", "22-ПРО-4")
         spnNameGroup = findViewById(R.id.groupName)
         val arrayAdapterNameGroup = ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
@@ -74,6 +77,11 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_info -> {
                 val intent = Intent(this, InfoActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.action_log -> {
+                val intent = Intent(this, LogActivity::class.java)
                 startActivity(intent)
                 true
             }
@@ -134,7 +142,7 @@ class MainActivity : AppCompatActivity() {
             val filteredData = filterReplacement(data, group, dateDay)
             recyclerViewReplacement.adapter = ReplacementAdapter(filteredData)
         } else {
-            println("File not found")
+            LogActivity.logs.add("File not found")
         }
     }
 

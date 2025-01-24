@@ -3,4 +3,7 @@
     <item
         android:id="@+id/action_info"
         android:title="Доп. информация" />
+    <item
+        android:id="@+id/action_log"
+        android:title="logs" />
 </menu>
