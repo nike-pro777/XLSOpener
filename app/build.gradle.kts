@@ -19,14 +19,21 @@ android {
             useSupportLibrary = true
         }
     }
-
+    android.buildFeatures.buildConfig = true
     buildTypes {
+        debug {
+            buildConfigField("String", "logger", "\"console\"")
+        }
+        create("qa") {
+            buildConfigField("String", "logger", "\"screen, console\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "logger", "\"firebase\"")
         }
     }
     compileOptions {
